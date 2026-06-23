@@ -1,0 +1,47 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc --project tsconfig.build.json",
+    "start": "node dist/app.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "migrate": "node --env-file=.env ../node_modules/.bin/node-pg-migrate up -m src/core/database/migrations",
+    "migrate:down": "node --env-file=.env ../node_modules/.bin/node-pg-migrate down -m src/core/database/migrations",
+    "migrate:create": "../node_modules/.bin/node-pg-migrate create -m src/core/database/migrations",
+    "seed": "node --env-file=.env ../node_modules/.bin/tsx src/core/database/seeds/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/jwt": "^8.0.1",
+    "@fastify/multipart": "^8.3.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^4.0.1",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.50.0",
+    "bcryptjs": "^2.4.3",
+    "fastify": "^4.28.1",
+    "node-pg-migrate": "^7.3.2",
+    "pg": "^8.12.0",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.14.0",
+    "@types/pg": "^8.11.6",
+    "@vitest/coverage-v8": "^1.6.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

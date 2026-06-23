@@ -1,0 +1,35 @@
+{
+  "name": "tea-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma educacional para crianças com Transtorno do Espectro Autista — Coração Feliz",
+  "workspaces": [
+    "backend",
+    "frontend-web",
+    "frontend-mobile",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:web\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=frontend-web",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=backend",
+    "build:web": "npm run build --workspace=frontend-web",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "db:migrate": "npm run migrate --workspace=backend",
+    "db:seed": "npm run seed --workspace=backend",
+    "pgadmin:up": "docker compose --profile tools up -d",
+    "pgadmin:down": "docker compose --profile tools down"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Paleta principal — cores calmas, baixo contraste */
+    --color-primary: #4A90A4;       /* Azul-petróleo suave */
+    --color-primary-light: #7AB8C8;
+    --color-primary-dark: #2D6B7F;
+
+    --color-secondary: #7CB87C;     /* Verde suave */
+    --color-secondary-light: #A8D5A2;
+
+    --color-warning: #E8A84E;       /* Âmbar */
+    --color-danger: #D96B6B;        /* Vermelho suave */
+
+    --color-background: #F8F6F2;    /* Creme claro */
+    --color-surface: #FFFFFF;
+    --color-border: #E2DDD8;
+
+    --color-text-primary: #2C2A28;
+    --color-text-secondary: #6B6560;
+    --color-text-muted: #A09890;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Acessibilidade: foco visível */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}

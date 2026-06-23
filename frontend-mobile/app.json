@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Coração Feliz",
+    "slug": "coracaofeliz-tea",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5F2EE"
+    },
+    "scheme": "coracaofeliz",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.coracaofeliz.tea"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#F5F2EE"
+      },
+      "package": "com.coracaofeliz.tea"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+build/
+.expo/
+*.tsbuildinfo
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Cobertura de testes
+coverage/
+.nyc_output/
+
+# Docker volumes locais
+postgres_data/
+redis_data/
+
+# Certificados
+*.pem
+*.key
+*.crt
+.vercel
+.env*
