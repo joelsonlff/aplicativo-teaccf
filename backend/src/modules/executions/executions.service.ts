@@ -4,7 +4,7 @@ import { assignmentsRepository } from '../assignments/assignments.repository'
 import { childrenRepository } from '../children/children.repository'
 import type { CreateExecutionInput } from './dto/executions.dto'
 
-function calculateScore(responseData: Record<string, unknown>): { score: number | null; accuracy: number | null } {
+export function calculateScore(responseData: Record<string, unknown>): { score: number | null; accuracy: number | null } {
   // Cada tipo de atividade envia dados brutos diferentes.
   // Formato esperado: { correct: number, total: number } ou { steps_completed: number, total_steps: number }
   const correct = typeof responseData['correct'] === 'number' ? responseData['correct'] : null

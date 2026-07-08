@@ -4,9 +4,14 @@ import { loginSchema, childLoginSchema, refreshSchema } from './dto/login.dto'
 import { ValidationError } from '../../core/middleware/error-handler.middleware'
 import { jwtConfig } from '../../config/app.config'
 
+// Limites por IP mais rígidos que o global — logins são alvo de força bruta
+// (o PIN da criança tem só 10.000 combinações)
+const LOGIN_RATE_LIMIT = { max: 5, timeWindow: '1 minute' }
+
 export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/login — professor ou responsável
   app.post('/login', {
+    config: { rateLimit: LOGIN_RATE_LIMIT },
     schema: {
       tags: ['auth'],
       summary: 'Login de professor ou responsável',
@@ -51,6 +56,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /auth/child/login — login via PIN da criança
   app.post('/child/login', {
+    config: { rateLimit: LOGIN_RATE_LIMIT },
     schema: {
       tags: ['auth'],
       summary: 'Login simplificado via PIN (criança)',
@@ -104,7 +110,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const parsed = refreshSchema.safeParse(request.body)
     if (!parsed.success) throw new ValidationError(parsed.error.flatten())
 
-    const { user } = await authService.validateRefreshToken(parsed.data.refresh_token)
+    const { user, refreshToken } = await authService.validateRefreshToken(parsed.data.refresh_token)
 
     const accessToken = app.jwt.sign(
       { sub: user.id, role: user.role, school_id: user.school_id },
@@ -112,7 +118,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     )
 
     return reply.status(200).send({
-      data: { access_token: accessToken, expires_in: 900 },
+      data: { access_token: accessToken, refresh_token: refreshToken, expires_in: 900 },
     })
   })
 

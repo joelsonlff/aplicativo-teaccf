@@ -28,6 +28,7 @@ export interface ActivityContent {
   emotions?: Array<{ id: string; label: string; imageUrl: string }>
   // COMMUNICATION
   options?: Array<{ id: string; label: string; imageUrl?: string }>
+  correct_option_id?: string  // opcional: sem ele, toda escolha é válida (expressiva)
   // ROUTINE
   tasks?: Array<{ id: string; label: string; imageUrl?: string }>
   // SOCIAL_STORY

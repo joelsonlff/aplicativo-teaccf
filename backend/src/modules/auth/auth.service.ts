@@ -18,6 +18,7 @@ export interface ChildLoginResult {
 
 export interface RefreshResult {
   user: Omit<UserRow, 'password_hash'>
+  refreshToken: string  // novo token — o antigo é revogado (rotação)
 }
 
 export class AuthService {
@@ -69,8 +70,17 @@ export class AuthService {
     const user = await this.repo.findById(stored.user_id)
     if (!user || !user.is_active) throw new UnauthorizedError('Usuário inativo')
 
+    // Rotação: revoga o token usado e emite um novo com a mesma janela de 30 dias
+    await this.repo.revokeRefreshToken(rawToken)
+    const newRefreshToken = randomBytes(32).toString('hex')
+    await this.repo.storeRefreshToken({
+      user_id: user.id,
+      raw_token: newRefreshToken,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    })
+
     const { password_hash: _, ...safeUser } = user
-    return { user: safeUser }
+    return { user: safeUser, refreshToken: newRefreshToken }
   }
 
   async revokeRefreshToken(rawToken: string): Promise<void> {
