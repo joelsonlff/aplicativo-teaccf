@@ -62,7 +62,7 @@ export function ContentImage({
       <Image
         source={{ uri }}
         style={{ width: size, height: size, borderRadius: borderRadius.lg }}
-        resizeMode="cover"
+        resizeMode="contain"
         accessibilityIgnoresInvertColors
       />
     )

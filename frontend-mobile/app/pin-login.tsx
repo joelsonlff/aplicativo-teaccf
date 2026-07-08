@@ -112,6 +112,11 @@ export default function PinLoginScreen() {
             })}
           </View>
         )}
+
+        {/* Atribuição obrigatória — licença CC BY-NC-SA dos pictogramas */}
+        <Text style={styles.attribution}>
+          Pictogramas: Sergio Palao / ARASAAC (arasaac.org) — CC BY-NC-SA
+        </Text>
       </View>
     </SafeAreaView>
   )
@@ -183,4 +188,10 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   keyDeleteText: { color: colors.attention },
+
+  attribution: {
+    fontSize: 11,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
 })

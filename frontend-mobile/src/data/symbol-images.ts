@@ -1,3 +1,6 @@
+// Pictogramas: autor Sergio Palao, origem ARASAAC (https://arasaac.org),
+// licença Creative Commons BY-NC-SA. Propriedade do Governo de Aragón (ES).
+// A atribuição visível ao usuário está na tela de PIN (pin-login.tsx).
 // Static map of symbol ID → bundled PNG asset.
 // Metro requires literal string paths — cannot be built dynamically.
 // nav-* symbols are available for navigation UI use outside the CAA board.
