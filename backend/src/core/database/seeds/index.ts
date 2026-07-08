@@ -1,7 +1,13 @@
 // Seeds de desenvolvimento — nunca rodar em produção
 // Cria dados básicos para testar o sistema localmente
 
+import bcrypt from 'bcryptjs'
 import { connectDatabase, query, withTransaction } from '../database'
+
+// Hashes gerados em tempo de execução — um hash fixo no código quebra
+// silenciosamente se não corresponder à senha documentada
+const DEMO_PASSWORD_HASH = bcrypt.hashSync('demo123456', 12)
+const DEMO_PIN_HASH      = bcrypt.hashSync('1234', 12)
 
 const seeds = [
   {
@@ -17,20 +23,20 @@ const seeds = [
   {
     name: 'Professor demo',
     data: async () => {
-      // Senha: demo123456 (bcrypt hash)
+      // Senha: demo123456
       await query(`
         INSERT INTO users (id, email, password_hash, full_name, role, school_id, email_verified)
         VALUES (
           '00000000-0000-0000-0000-000000000010',
           'professor@demo.com',
-          '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj1z9kbL1tPO',
+          $1,
           'Professor Demo',
           'TEACHER',
           '00000000-0000-0000-0000-000000000001',
           true
         )
-        ON CONFLICT DO NOTHING
-      `)
+        ON CONFLICT (id) DO UPDATE SET password_hash = EXCLUDED.password_hash
+      `, [DEMO_PASSWORD_HASH])
     },
   },
   {
@@ -41,34 +47,34 @@ const seeds = [
         VALUES (
           '00000000-0000-0000-0000-000000000011',
           'responsavel@demo.com',
-          '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj1z9kbL1tPO',
+          $1,
           'Responsável Demo',
           'PARENT',
           true
         )
-        ON CONFLICT DO NOTHING
-      `)
+        ON CONFLICT (id) DO UPDATE SET password_hash = EXCLUDED.password_hash
+      `, [DEMO_PASSWORD_HASH])
     },
   },
   {
     name: 'Criança demo',
     data: async () => {
-      // PIN: 1234 (bcrypt hash)
+      // PIN: 1234
       await query(`
         INSERT INTO children (id, full_name, birth_date, pin_hash, communication_level, sensory_profile, tea_profile, created_by, school_id)
         VALUES (
           '00000000-0000-0000-0000-000000000020',
           'João Demo',
           '2016-03-15',
-          '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj1z9kbL1tPO',
+          $1,
           'VERBAL',
           'HYPERSENSITIVE',
           '{"autismLevel": "LEVEL_1", "therapies": ["ABA", "Fonoaudiologia"], "reinforcementType": "VISUAL", "cognitiveDomains": {"attentionSpan": "MEDIUM", "workingMemory": "LOW", "processingSpeed": "MEDIUM", "socialCognition": "LOW"}, "behavioralTriggers": ["Sons altos", "Transições bruscas"]}',
           '00000000-0000-0000-0000-000000000010',
           '00000000-0000-0000-0000-000000000001'
         )
-        ON CONFLICT DO NOTHING
-      `)
+        ON CONFLICT (id) DO UPDATE SET pin_hash = EXCLUDED.pin_hash
+      `, [DEMO_PIN_HASH])
 
       await query(`
         INSERT INTO teacher_children (teacher_id, child_id)
