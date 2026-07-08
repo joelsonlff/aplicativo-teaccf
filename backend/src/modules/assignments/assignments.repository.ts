@@ -152,6 +152,14 @@ export class AssignmentsRepository {
   async delete(id: string): Promise<void> {
     await query(`DELETE FROM activity_assignments WHERE id = $1`, [id])
   }
+
+  async childHasActivity(childId: string, activityId: string): Promise<boolean> {
+    const r = await query<{ count: string }>(
+      `SELECT COUNT(*) FROM activity_assignments WHERE child_id = $1 AND activity_id = $2`,
+      [childId, activityId],
+    )
+    return Number(r.rows[0].count) > 0
+  }
 }
 
 export const assignmentsRepository = new AssignmentsRepository()

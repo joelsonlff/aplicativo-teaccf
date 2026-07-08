@@ -2,12 +2,20 @@ import type { FastifyInstance, FastifyRequest } from 'fastify'
 import { assignmentsService } from './assignments.service'
 import { createAssignmentSchema, updateAssignmentSchema } from './dto/assignments.dto'
 import { ValidationError } from '../../core/middleware/error-handler.middleware'
-import { requireTeacher, requireAdultUser } from '../../core/guards/roles.guard'
-import type { JwtPayload } from '../../core/guards/roles.guard'
+import { requireTeacher } from '../../core/guards/roles.guard'
+import type { JwtPayload, ChildJwtPayload } from '../../core/guards/roles.guard'
+
+// Extrai identidade tanto de tokens adultos quanto de tokens de criança
+function callerFrom(user: unknown): { sub: string; role: string } {
+  const child = user as ChildJwtPayload
+  if (child.type === 'child') return { sub: child.sub, role: 'CHILD' }
+  const adult = user as JwtPayload
+  return { sub: adult.sub, role: adult.role }
+}
 
 export async function assignmentsRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', {
-    onRequest: [app.authenticate, requireAdultUser],
+    onRequest: [app.authenticate],
     schema: {
       tags: ['assignments'],
       summary: 'Listar atribuições',
@@ -23,7 +31,7 @@ export async function assignmentsRoutes(app: FastifyInstance): Promise<void> {
       },
     },
   }, async (request: FastifyRequest) => {
-    const { sub, role } = request.user as JwtPayload
+    const { sub, role } = callerFrom(request.user)
     const q = request.query as { child_id?: string; status?: string; page?: number; limit?: number }
     const { rows, total } = await assignmentsService.list({
       callerId:   sub,
@@ -49,10 +57,10 @@ export async function assignmentsRoutes(app: FastifyInstance): Promise<void> {
   })
 
   app.get('/:id', {
-    onRequest: [app.authenticate, requireAdultUser],
+    onRequest: [app.authenticate],
     schema: { tags: ['assignments'], summary: 'Buscar atribuição por ID', security: [{ bearerAuth: [] }] },
   }, async (request: FastifyRequest) => {
-    const { sub, role } = request.user as JwtPayload
+    const { sub, role } = callerFrom(request.user)
     const { id } = request.params as { id: string }
     const assignment = await assignmentsService.getById(id, sub, role)
     return { data: assignment }

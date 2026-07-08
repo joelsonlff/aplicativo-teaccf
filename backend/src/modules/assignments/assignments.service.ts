@@ -22,6 +22,15 @@ export class AssignmentsService {
     page: number
     limit: number
   }) {
+    // CHILD — vê apenas as próprias atribuições, ignorando qualquer child_id do request
+    if (params.callerRole === 'CHILD') {
+      return this.repo.listByChild(params.callerId, {
+        status: params.status,
+        page:   params.page,
+        limit:  params.limit,
+      })
+    }
+
     if (params.callerRole === 'TEACHER' || params.callerRole === 'ADMIN') {
       return this.repo.listByTeacher(params.callerId, {
         child_id: params.child_id,
@@ -30,8 +39,10 @@ export class AssignmentsService {
         limit:    params.limit,
       })
     }
-    // PARENT — requer child_id
+    // PARENT — requer child_id e vínculo com a criança
     if (!params.child_id) return { rows: [], total: 0 }
+    const linked = await childrenRepository.isParentLinked(params.callerId, params.child_id)
+    if (!linked) throw new ForbiddenError('Você não tem acesso a esta criança')
     return this.repo.listByChild(params.child_id, { status: params.status, page: params.page, limit: params.limit })
   }
 
@@ -74,6 +85,10 @@ export class AssignmentsService {
 
   private async assertAccess(assignment: AssignmentRow, callerId: string, callerRole: string): Promise<void> {
     if (callerRole === 'ADMIN') return
+    if (callerRole === 'CHILD') {
+      if (assignment.child_id !== callerId) throw new ForbiddenError('Acesso negado a esta atribuição')
+      return
+    }
     if (callerRole === 'TEACHER') {
       const linked = await childrenRepository.isTeacherLinked(callerId, assignment.child_id)
       if (!linked) throw new ForbiddenError('Acesso negado a esta atribuição')

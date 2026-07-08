@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 
 const QUEUE_FILE = `${FileSystem.documentDirectory}tea-execution-queue.json`
 
@@ -36,7 +36,10 @@ export interface QueuedExecution {
   childId: string
   startedAt: string
   completedAt: string
+  durationSeconds?: number
+  attempts: number
   responseData: unknown
+  behavioralNotes?: string
   wasAssisted: boolean
   deviceInfo: { platform: string; app_version: string }
   queuedAt: string

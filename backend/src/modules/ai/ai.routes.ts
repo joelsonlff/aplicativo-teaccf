@@ -14,9 +14,9 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
       security: [{ bearerAuth: [] }],
     },
   }, async (request: FastifyRequest) => {
-    const { childId } = request.params as { childId: string }
-    const { sub }     = request.user as JwtPayload
-    const recommendations = await aiService.recommendActivities(childId, sub)
+    const { childId }    = request.params as { childId: string }
+    const { sub, role }  = request.user as JwtPayload
+    const recommendations = await aiService.recommendActivities(childId, sub, role)
     return { data: recommendations }
   })
 
@@ -30,8 +30,9 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
       security: [{ bearerAuth: [] }],
     },
   }, async (request: FastifyRequest) => {
-    const { childId } = request.params as { childId: string }
-    const report = await aiService.generateProgressReport(childId)
+    const { childId }   = request.params as { childId: string }
+    const { sub, role } = request.user as JwtPayload
+    const report = await aiService.generateProgressReport(childId, sub, role)
     return { data: report }
   })
 }

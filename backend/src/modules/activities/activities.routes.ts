@@ -1,9 +1,9 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import { activitiesService } from './activities.service'
 import { createActivitySchema, updateActivitySchema } from './dto/activities.dto'
-import { ValidationError } from '../../core/middleware/error-handler.middleware'
+import { ValidationError, ForbiddenError } from '../../core/middleware/error-handler.middleware'
 import { requireTeacher, requireAdultUser } from '../../core/guards/roles.guard'
-import type { JwtPayload } from '../../core/guards/roles.guard'
+import type { JwtPayload, ChildJwtPayload } from '../../core/guards/roles.guard'
 
 export async function activitiesRoutes(app: FastifyInstance): Promise<void> {
   app.get('/', {
@@ -62,10 +62,19 @@ export async function activitiesRoutes(app: FastifyInstance): Promise<void> {
   })
 
   app.get('/:id', {
-    onRequest: [app.authenticate, requireAdultUser],
+    onRequest: [app.authenticate],
     schema: { tags: ['activities'], summary: 'Buscar atividade por ID', security: [{ bearerAuth: [] }] },
   }, async (request: FastifyRequest) => {
     const { id } = request.params as { id: string }
+
+    // Token de criança: só pode ver atividades que lhe foram atribuídas
+    const child = request.user as ChildJwtPayload
+    if (child.type === 'child') {
+      const { assignmentsRepository } = await import('../assignments/assignments.repository')
+      const assigned = await assignmentsRepository.childHasActivity(child.sub, id)
+      if (!assigned) throw new ForbiddenError('Atividade não atribuída a esta criança')
+    }
+
     const activity = await activitiesService.getById(id)
     return { data: activity }
   })

@@ -4,7 +4,7 @@ import { childrenRepository } from '../children/children.repository'
 import { activitiesRepository } from '../activities/activities.repository'
 import { executionsRepository } from '../executions/executions.repository'
 import { assignmentsRepository } from '../assignments/assignments.repository'
-import { NotFoundError } from '../../core/middleware/error-handler.middleware'
+import { NotFoundError, ForbiddenError } from '../../core/middleware/error-handler.middleware'
 
 export interface ActivityRecommendation {
   activity_id:  string
@@ -57,9 +57,10 @@ async function generateWithFallback(prompt: string): Promise<string> {
 }
 
 export class AIService {
-  async recommendActivities(childId: string, teacherId: string): Promise<ActivityRecommendation[]> {
+  async recommendActivities(childId: string, teacherId: string, callerRole: string): Promise<ActivityRecommendation[]> {
     const child = await childrenRepository.findById(childId)
     if (!child) throw new NotFoundError('Criança', childId)
+    await assertChildAccess(childId, teacherId, callerRole)
 
     const [summary, recentAssignments, availableActivities] = await Promise.all([
       executionsRepository.progressSummary(childId),
@@ -79,9 +80,10 @@ export class AIService {
     return parseRecommendations(text, candidates)
   }
 
-  async generateProgressReport(childId: string): Promise<ProgressReport> {
+  async generateProgressReport(childId: string, callerId: string, callerRole: string): Promise<ProgressReport> {
     const child = await childrenRepository.findById(childId)
     if (!child) throw new NotFoundError('Criança', childId)
+    await assertChildAccess(childId, callerId, callerRole)
 
     const [summary, executions] = await Promise.all([
       executionsRepository.progressSummary(childId),
@@ -91,6 +93,18 @@ export class AIService {
     const prompt = buildProgressReportPrompt(child, summary, executions.rows)
     const text   = await generateWithFallback(prompt)
     return parseProgressReport(text)
+  }
+}
+
+// Mesma regra de vínculo do módulo children — evita vazar dados de crianças de terceiros
+async function assertChildAccess(childId: string, callerId: string, callerRole: string): Promise<void> {
+  if (callerRole === 'ADMIN') return
+
+  const isTeacher = callerRole === 'TEACHER' && await childrenRepository.isTeacherLinked(callerId, childId)
+  const isParent  = callerRole === 'PARENT'  && await childrenRepository.isParentLinked(callerId, childId)
+
+  if (!isTeacher && !isParent) {
+    throw new ForbiddenError('Você não tem acesso a esta criança')
   }
 }
 

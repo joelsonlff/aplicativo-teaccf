@@ -8,7 +8,7 @@ import fastifyJwt from '@fastify/jwt'
 import fastifyMultipart from '@fastify/multipart'
 import { appConfig, corsConfig, jwtConfig } from './config/app.config'
 import { connectDatabase } from './core/database/database'
-import { UnauthorizedError } from './core/middleware/error-handler.middleware'
+import { UnauthorizedError, errorHandler } from './core/middleware/error-handler.middleware'
 import { authRoutes } from './modules/auth/auth.routes'
 import { mediaRoutes } from './modules/media/media.routes'
 import { aacRoutes } from './modules/aac/aac.routes'
@@ -136,25 +136,14 @@ async function registerRoutes() {
   await app.register(aiRoutes,          { prefix: '/api/v1/ai' })
 }
 
-app.setErrorHandler((error, _request, reply) => {
+app.setErrorHandler((error, request, reply) => {
   app.log.error(error)
-
-  if (error.validation) {
-    return reply.status(400).send({
-      error: { code: 'VALIDATION_ERROR', message: 'Dados de entrada inválidos', details: error.validation },
-    })
-  }
 
   if (error.statusCode === 429) {
     return reply.status(429).send({ error: { code: 'RATE_LIMIT_EXCEEDED', message: error.message } })
   }
 
-  return reply.status(error.statusCode ?? 500).send({
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: appConfig.isDevelopment ? error.message : 'Erro interno do servidor',
-    },
-  })
+  return errorHandler(error, request, reply)
 })
 
 async function start() {

@@ -29,10 +29,16 @@ apiClient.interceptors.response.use(
         const refreshToken = useAuthStore.getState().refreshToken
         if (!refreshToken) throw new Error('Sem refresh token')
 
-        const { data } = await axios.post('/api/v1/auth/refresh', { refresh_token: refreshToken })
-        useAuthStore.getState().setTokens(data.access_token, data.refresh_token)
+        // Resposta da API vem no envelope { data: { access_token, expires_in } };
+        // o refresh token não é rotacionado, então mantemos o atual
+        const { data: body } = await axios.post<{ data: { access_token: string } }>(
+          '/api/v1/auth/refresh',
+          { refresh_token: refreshToken },
+        )
+        const newAccessToken = body.data.access_token
+        useAuthStore.getState().setTokens(newAccessToken, refreshToken)
 
-        originalRequest.headers.Authorization = `Bearer ${data.access_token}`
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         return apiClient(originalRequest)
       } catch {
         useAuthStore.getState().logout()

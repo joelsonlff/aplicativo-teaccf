@@ -21,10 +21,13 @@ export async function submitExecution(payload: ExecutionPayload): Promise<void> 
     useQueueStore.getState().enqueue({
       id: `${payload.assignment_id}-${Date.now()}`,
       assignmentId: payload.assignment_id,
-      childId: '',            // preenchido pelo sync.service ao enviar
+      childId: '',            // o backend identifica a criança pelo token
       startedAt: payload.started_at,
       completedAt: payload.completed_at ?? new Date().toISOString(),
+      durationSeconds: payload.duration_seconds,
+      attempts: payload.attempts,
       responseData: payload.response_data,
+      behavioralNotes: payload.behavioral_notes,
       wasAssisted: payload.was_assisted,
       deviceInfo: payload.device_info,
     })
@@ -43,10 +46,12 @@ export async function syncQueuedExecutions(): Promise<void> {
           assignment_id:    item.assignmentId,
           started_at:       item.startedAt,
           completed_at:     item.completedAt,
+          duration_seconds: item.durationSeconds,
+          attempts:         item.attempts ?? 1,
           response_data:    item.responseData,
+          behavioral_notes: item.behavioralNotes,
           was_assisted:     item.wasAssisted,
           device_info:      item.deviceInfo,
-          attempts:         1,
         })
         store.dequeue(item.id)
       } catch {

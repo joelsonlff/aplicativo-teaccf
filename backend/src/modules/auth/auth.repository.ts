@@ -21,7 +21,7 @@ export interface ChildRow {
 
 interface StoreRefreshTokenParams {
   user_id: string
-  token_hash: string
+  raw_token: string  // hasheado com sha256 antes de persistir
   expires_at: Date
 }
 
@@ -63,9 +63,10 @@ export class AuthRepository {
   }
 
   async storeRefreshToken(params: StoreRefreshTokenParams): Promise<void> {
+    const hash = createHash('sha256').update(params.raw_token).digest('hex')
     await query(
       `INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
-      [params.user_id, params.token_hash, params.expires_at],
+      [params.user_id, hash, params.expires_at],
     )
   }
 

@@ -1,6 +1,7 @@
-import { executionsRepository, type ExecutionsRepository, type ExecutionRow } from './executions.repository'
+import { executionsRepository, type ExecutionsRepository, type ExecutionRow, type ProgressSummary } from './executions.repository'
 import { NotFoundError, ForbiddenError } from '../../core/middleware/error-handler.middleware'
 import { assignmentsRepository } from '../assignments/assignments.repository'
+import { childrenRepository } from '../children/children.repository'
 import type { CreateExecutionInput } from './dto/executions.dto'
 
 function calculateScore(responseData: Record<string, unknown>): { score: number | null; accuracy: number | null } {
@@ -32,10 +33,40 @@ export class ExecutionsService {
   async getById(id: string, callerId: string, callerRole: string): Promise<ExecutionRow> {
     const exec = await this.repo.findById(id)
     if (!exec) throw new NotFoundError('Execução', id)
-    if (callerRole === 'CHILD' && exec.child_id !== callerId) {
-      throw new ForbiddenError('Acesso negado')
-    }
+    await this.assertChildAccess(exec.child_id, callerId, callerRole)
     return exec
+  }
+
+  async listByChild(
+    childId: string,
+    params: { page: number; limit: number },
+    callerId: string,
+    callerRole: string,
+  ): Promise<{ rows: ExecutionRow[]; total: number }> {
+    await this.assertChildAccess(childId, callerId, callerRole)
+    return this.repo.listByChild(childId, params)
+  }
+
+  async progressSummary(childId: string, callerId: string, callerRole: string): Promise<ProgressSummary> {
+    await this.assertChildAccess(childId, callerId, callerRole)
+    return this.repo.progressSummary(childId)
+  }
+
+  // Garante que o chamador tem vínculo com a criança (mesma regra do módulo children)
+  private async assertChildAccess(childId: string, callerId: string, callerRole: string): Promise<void> {
+    if (callerRole === 'ADMIN') return
+
+    if (callerRole === 'CHILD') {
+      if (childId !== callerId) throw new ForbiddenError('Acesso negado')
+      return
+    }
+
+    const isTeacher = callerRole === 'TEACHER' && await childrenRepository.isTeacherLinked(callerId, childId)
+    const isParent  = callerRole === 'PARENT'  && await childrenRepository.isParentLinked(callerId, childId)
+
+    if (!isTeacher && !isParent) {
+      throw new ForbiddenError('Você não tem acesso a esta criança')
+    }
   }
 
   async create(input: CreateExecutionInput, childId: string): Promise<ExecutionRow> {

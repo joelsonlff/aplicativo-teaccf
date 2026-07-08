@@ -159,8 +159,10 @@ export default function ActivityScreen() {
       duration_seconds: Math.round((Date.now() - new Date(startedAt.current).getTime()) / 1000),
       attempts:         rawResults.length,
       response_data: {
+        // Dados brutos: acertos sobre o total de TENTATIVAS (erros contam),
+        // senão a precisão seria sempre 100% ao concluir todos os pares
         correct,
-        total: activity.content.pairs?.length ?? 0,
+        total: rawResults.length,
         pairs_matched: rawResults,
       },
       was_assisted: false,

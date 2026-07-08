@@ -39,7 +39,7 @@ export class AuthService {
     const refreshToken = randomBytes(32).toString('hex')
     await this.repo.storeRefreshToken({
       user_id: user.id,
-      token_hash: refreshToken,   // hashToken é feito no repository
+      raw_token: refreshToken,   // o hash sha256 é feito no repository
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     })
 

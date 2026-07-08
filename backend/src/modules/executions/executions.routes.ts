@@ -1,6 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import { executionsService } from './executions.service'
-import { executionsRepository } from './executions.repository'
 import { createExecutionSchema } from './dto/executions.dto'
 import { ValidationError } from '../../core/middleware/error-handler.middleware'
 import { requireChild, requireAdultUser } from '../../core/guards/roles.guard'
@@ -42,11 +41,14 @@ export async function executionsRoutes(app: FastifyInstance): Promise<void> {
       },
     },
   }, async (request: FastifyRequest) => {
+    const { sub, role } = request.user as JwtPayload
     const q = request.query as { child_id: string; page?: number; limit?: number }
-    const { rows, total } = await executionsRepository.listByChild(q.child_id, {
-      page:  q.page  ?? 1,
-      limit: q.limit ?? 20,
-    })
+    const { rows, total } = await executionsService.listByChild(
+      q.child_id,
+      { page: q.page ?? 1, limit: q.limit ?? 20 },
+      sub,
+      role,
+    )
     return { data: rows, meta: { total, page: q.page ?? 1, limit: q.limit ?? 20 } }
   })
 
@@ -79,8 +81,9 @@ export async function executionsRoutes(app: FastifyInstance): Promise<void> {
       security: [{ bearerAuth: [] }],
     },
   }, async (request: FastifyRequest) => {
+    const { sub, role } = request.user as JwtPayload
     const { childId } = request.params as { childId: string }
-    const summary = await executionsRepository.progressSummary(childId)
+    const summary = await executionsService.progressSummary(childId, sub, role)
     return { data: summary }
   })
 }
