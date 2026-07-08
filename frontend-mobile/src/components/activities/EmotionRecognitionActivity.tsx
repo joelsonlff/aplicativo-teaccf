@@ -5,7 +5,7 @@ import { speak } from '../../lib/speech'
 import { InstructionBar, ProgressDots, ContentImage, common, type ActivityResult } from './common'
 import { spacing } from '../../config/theme'
 
-interface Emotion { id: string; label: string; imageUrl: string }
+interface Emotion { id: string; label: string; imageUrl?: string; emoji?: string }
 interface EmotionEvent { emotionId: string; chosenId: string; correct: boolean }
 
 const MAX_OPTIONS = 3 // máximo de elementos interativos por tela — regra TEA
@@ -80,7 +80,7 @@ export function EmotionRecognitionActivity({
 
       {/* Expressão facial da rodada */}
       <View style={styles.faceArea}>
-        <ContentImage uri={target.imageUrl} fallbackEmoji="🙂" size={180} />
+        <ContentImage uri={target.imageUrl} fallbackEmoji={target.emoji ?? '🙂'} size={180} />
       </View>
 
       {/* Opções de resposta — máx. 3 */}

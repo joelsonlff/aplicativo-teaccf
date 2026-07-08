@@ -19,20 +19,22 @@ export interface Assignment {
   assigned_at: string
 }
 
+// Em todos os itens, `emoji` é o visual alternativo quando não há imagem
+// hospedada — os cartões funcionam de imediato, sem upload de mídia.
 export interface ActivityContent {
   // MATCHING
   pairs?: Array<{ id: string; prompt: string; answer: string; promptImageUrl?: string }>
   // SEQUENCE
-  steps?: Array<{ id: string; text: string; imageUrl?: string; order: number }>
+  steps?: Array<{ id: string; text: string; imageUrl?: string; emoji?: string; order: number }>
   // EMOTION_RECOGNITION
-  emotions?: Array<{ id: string; label: string; imageUrl: string }>
+  emotions?: Array<{ id: string; label: string; imageUrl?: string; emoji?: string }>
   // COMMUNICATION
-  options?: Array<{ id: string; label: string; imageUrl?: string }>
+  options?: Array<{ id: string; label: string; imageUrl?: string; emoji?: string }>
   correct_option_id?: string  // opcional: sem ele, toda escolha é válida (expressiva)
   // ROUTINE
-  tasks?: Array<{ id: string; label: string; imageUrl?: string }>
+  tasks?: Array<{ id: string; label: string; imageUrl?: string; emoji?: string }>
   // SOCIAL_STORY
-  slides?: Array<{ id: string; text: string; imageUrl?: string }>
+  slides?: Array<{ id: string; text: string; imageUrl?: string; emoji?: string }>
   // instrução geral (todos os tipos)
   instruction?: string
 }

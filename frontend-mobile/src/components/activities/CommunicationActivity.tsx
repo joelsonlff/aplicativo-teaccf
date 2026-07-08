@@ -6,7 +6,7 @@ import { speak } from '../../lib/speech'
 import { InstructionBar, ContentImage, common, type ActivityResult } from './common'
 import { spacing } from '../../config/theme'
 
-interface CommunicationOption { id: string; label: string; imageUrl?: string }
+interface CommunicationOption { id: string; label: string; imageUrl?: string; emoji?: string }
 interface Selection { optionId: string; label: string; correct: boolean | null }
 
 // PECS-like: a criança expressa uma intenção tocando no cartão.
@@ -80,7 +80,7 @@ export function CommunicationActivity({
             accessibilityLabel={o.label}
             accessibilityState={{ selected: selectedId === o.id }}
           >
-            <ContentImage uri={o.imageUrl} fallbackEmoji="💬" size={88} />
+            <ContentImage uri={o.imageUrl} fallbackEmoji={o.emoji ?? '💬'} size={88} />
             <Text style={common.optionLabel}>{o.label}</Text>
           </TouchableOpacity>
         ))}

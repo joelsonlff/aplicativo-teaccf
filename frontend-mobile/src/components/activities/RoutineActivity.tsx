@@ -5,7 +5,7 @@ import { speak } from '../../lib/speech'
 import { InstructionBar, ProgressDots, ContentImage, common, type ActivityResult } from './common'
 import { colors, spacing, fontSize } from '../../config/theme'
 
-interface RoutineTask { id: string; label: string; imageUrl?: string }
+interface RoutineTask { id: string; label: string; imageUrl?: string; emoji?: string }
 
 // Rotina guiada: UMA tarefa por vez na tela, com um único botão "Feito!".
 // Previsibilidade e foco — exatamente o que a criança TEA precisa.
@@ -61,7 +61,7 @@ export function RoutineActivity({
 
       {/* Tarefa atual — grande e única */}
       <View style={styles.taskArea}>
-        <ContentImage uri={task.imageUrl} fallbackEmoji="📋" size={160} />
+        <ContentImage uri={task.imageUrl} fallbackEmoji={task.emoji ?? '📋'} size={160} />
         <Text style={styles.taskLabel}>{task.label}</Text>
       </View>
 

@@ -52,11 +52,13 @@ export const corsConfig = {
     .filter(Boolean),
 } as const
 
-// Valida apenas em produção para não bloquear desenvolvimento
+// Valida apenas em produção para não bloquear desenvolvimento.
+// Supabase é opcional: sem ele, apenas o upload de mídia fica indisponível.
 if (appConfig.isProduction) {
   requireEnv('JWT_SECRET')
   requireEnv('JWT_REFRESH_SECRET')
   requireEnv('DATABASE_URL')
-  requireEnv('SUPABASE_URL')
-  requireEnv('SUPABASE_SERVICE_ROLE_KEY')
+  if (!supabaseConfig.url || !supabaseConfig.serviceRoleKey) {
+    console.warn('[Config] SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes — upload de mídia desabilitado.')
+  }
 }

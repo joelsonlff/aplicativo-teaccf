@@ -5,7 +5,7 @@ import { speak } from '../../lib/speech'
 import { InstructionBar, ProgressDots, ContentImage, common, type ActivityResult } from './common'
 import { colors, spacing, fontSize } from '../../config/theme'
 
-interface SequenceStep { id: string; text: string; imageUrl?: string; order: number }
+interface SequenceStep { id: string; text: string; imageUrl?: string; emoji?: string; order: number }
 interface SequenceEvent { stepId: string; correct: boolean }
 
 // A criança monta a sequência tocando nas etapas na ordem certa.
@@ -92,7 +92,7 @@ export function SequenceActivity({
             accessibilityRole="button"
             accessibilityLabel={`Etapa: ${s.text}. Posição atual: ${position} de ${ordered.length}`}
           >
-            {s.imageUrl && <ContentImage uri={s.imageUrl} fallbackEmoji="📋" size={72} />}
+            {(s.imageUrl || s.emoji) && <ContentImage uri={s.imageUrl} fallbackEmoji={s.emoji ?? '📋'} size={72} />}
             <Text style={common.optionLabel}>{s.text}</Text>
           </TouchableOpacity>
         ))}

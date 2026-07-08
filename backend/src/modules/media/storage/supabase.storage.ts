@@ -1,13 +1,27 @@
-import { supabaseAdmin } from '../../../core/supabase/client'
+import { getSupabaseAdmin, isStorageConfigured } from '../../../core/supabase/client'
 import { supabaseConfig } from '../../../config/app.config'
+import { AppError } from '../../../core/middleware/error-handler.middleware'
 
 const BUCKET = supabaseConfig.storageBucket
+
+function assertStorageConfigured(): void {
+  if (!isStorageConfigured()) {
+    throw new AppError(
+      503,
+      'STORAGE_NOT_CONFIGURED',
+      'Upload de imagens indisponível no momento. O armazenamento ainda não foi configurado.',
+    )
+  }
+}
 
 export async function uploadToStorage(
   key: string,
   body: Buffer,
   contentType: string,
 ): Promise<string> {
+  assertStorageConfigured()
+  const supabaseAdmin = getSupabaseAdmin()
+
   const { error } = await supabaseAdmin.storage
     .from(BUCKET)
     .upload(key, body, { contentType, upsert: true })
@@ -19,7 +33,8 @@ export async function uploadToStorage(
 }
 
 export async function deleteFromStorage(key: string): Promise<void> {
-  await supabaseAdmin.storage.from(BUCKET).remove([key])
+  assertStorageConfigured()
+  await getSupabaseAdmin().storage.from(BUCKET).remove([key])
 }
 
 export function extractKeyFromUrl(url: string): string {

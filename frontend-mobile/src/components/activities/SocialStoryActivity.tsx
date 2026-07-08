@@ -5,7 +5,7 @@ import { speak, stopSpeaking } from '../../lib/speech'
 import { InstructionBar, ProgressDots, ContentImage, common, type ActivityResult } from './common'
 import { colors, spacing, fontSize, touchTarget, borderRadius } from '../../config/theme'
 
-interface StorySlide { id: string; text: string; imageUrl?: string }
+interface StorySlide { id: string; text: string; imageUrl?: string; emoji?: string }
 
 // História social: um quadro por vez, narrado em voz alta.
 // A criança controla o ritmo — pode voltar e reouvir quantas vezes quiser.
@@ -65,7 +65,7 @@ export function SocialStoryActivity({
 
       {/* Quadro atual */}
       <View style={styles.slideArea}>
-        <ContentImage uri={slide.imageUrl} fallbackEmoji="📖" size={180} />
+        <ContentImage uri={slide.imageUrl} fallbackEmoji={slide.emoji ?? '📖'} size={180} />
         <Text style={styles.slideText}>{slide.text}</Text>
         <TouchableOpacity
           style={styles.replayButton}
