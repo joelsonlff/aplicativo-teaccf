@@ -16,7 +16,7 @@
     {
       "name": "mobile-expo",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start", "--workspace=frontend-mobile"],
+      "runtimeArgs": ["run", "start", "--workspace=frontend-mobile", "--", "--tunnel"],
       "port": 8081
     }
   ]
