@@ -23,9 +23,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# npm workspaces hoisted: todas as dependências vivem no node_modules da raiz
 COPY --from=builder /app/backend/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/backend/node_modules ./backend/node_modules
 COPY --from=builder /app/backend/src/core/database/migrations ./migrations
 
 EXPOSE 3000

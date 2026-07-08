@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/app.ts",
+    "dev": "node --env-file=.env ../node_modules/.bin/tsx watch src/app.ts",
     "build": "tsc --project tsconfig.build.json",
     "start": "node dist/app.js",
     "test": "vitest run",
